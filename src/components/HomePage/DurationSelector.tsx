@@ -150,7 +150,7 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
               >
                 <div className="flex items-center justify-center space-x-2">
                   {duration.icon}
-                  <span className="text-base sm:text-lg text-white font-bold max-sm:font-semibold group-hover:text-white transition-colors duration-300">
+                  <span className="text-[15px] sm:text-lg text-white font-bold max-sm:font-semibold group-hover:text-white transition-colors duration-300">
                     {duration.title}
                   </span>
                 </div>
