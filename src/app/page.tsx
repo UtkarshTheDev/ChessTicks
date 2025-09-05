@@ -1,7 +1,7 @@
 "use client";
 
 import { useTimerStore } from "@/stores/timerStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTimerTypeStore, TimerMode } from "@/stores/timerTypeStore";
 import { ChessTimer } from "@/components/ChessTimer";
 import { useStatsStore } from "@/stores/statsStore";
@@ -14,6 +14,7 @@ import TimerModeSelector, {
 import StartGameButton from "@/components/HomePage/StartGameButton";
 import SeoContent from "@/components/HomePage/SeoContent";
 import GitHubButton from "@/components/HomePage/GitHubButton";
+import { useCustomTimerStore } from "@/stores/customTimerStore";
 
 type GameState = "home" | "playing";
 
@@ -30,12 +31,45 @@ export default function Home() {
       const config = selectedTypeObj.config(time);
       setConfig(config);
       initializeTimer(config);
+      // Apply asymmetric times if configured via custom store
+      const { overrides, enabled } = useCustomTimerStore.getState();
+      const ov = overrides[selectedMode];
+      if (enabled && ov && (ov.whiteMinutes || ov.blackMinutes)) {
+        const engine = useTimerStore.getState().engine;
+        if (engine) {
+          // If only one side is set, default the other side to 15:00 per requirements
+          const fallbackMinutes = 15;
+          if (ov.whiteMinutes) {
+            engine.setTime("white", Math.floor(ov.whiteMinutes * 60));
+          }
+          if (ov.blackMinutes) {
+            engine.setTime("black", Math.floor(ov.blackMinutes * 60));
+          }
+          if (ov.whiteMinutes === undefined && ov.blackMinutes !== undefined) {
+            engine.setTime("white", Math.floor(fallbackMinutes * 60));
+          }
+          if (ov.blackMinutes === undefined && ov.whiteMinutes !== undefined) {
+            engine.setTime("black", Math.floor(fallbackMinutes * 60));
+          }
+        }
+      }
       setTimeoutCallback((player: "white" | "black") => {
         console.log(`${player} ran out of time!`);
       });
     }
     useStatsStore.getState().startGame();
   };
+
+  // Keep selected preset time in sync with per-mode custom duration so UI reflects Custom as active
+  useEffect(() => {
+    const { overrides, enabled } = useCustomTimerStore.getState();
+    const ov = overrides[selectedMode];
+    if (!enabled || !ov) return;
+    if (ov.durationMinutes && time !== ov.durationMinutes) {
+      setTime(ov.durationMinutes);
+    }
+    // If only per-side times are set, we don't change the selected time; the Custom tile will still appear active
+  }, [selectedMode]);
 
   const startGame = async () => {
     try {
@@ -65,7 +99,7 @@ export default function Home() {
           <GitHubButton />
         </div>
         <div className="mt-4 flex justify-center items-center w-full flex-col space-y-6">
-          <DurationSelector selectedTime={time} onTimeSelect={setTime} />
+          <DurationSelector selectedTime={time} onTimeSelect={setTime} currentMode={selectedMode} />
           <TimerModeSelector
             selectedMode={selectedMode}
             onModeSelect={setSelectedMode}
