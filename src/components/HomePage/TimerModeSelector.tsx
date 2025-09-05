@@ -192,10 +192,11 @@ const TimerModeSelector: React.FC<TimerModeSelectorProps> = ({ selectedMode, onM
                   {!hidePencil && (
                     <button
                       type="button"
-                      className={`p-1.5 rounded-md transition-colors ${hasCustom
-                        ? "bg-emerald-500 text-black ring-1 ring-white/60 animate-pulse"
-                        : "bg-white/10 text-white hover:bg-white/20"
-                        }`}
+                      className={`p-1.5 rounded-md border backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                        hasCustom
+                          ? "bg-emerald-500/90 text-black border-emerald-300/60 ring-1 ring-emerald-200/70 shadow-md shadow-emerald-500/20 hover:bg-emerald-500 hover:shadow-emerald-500/30 hover:-translate-y-0.5"
+                          : "bg-white/10 text-white border-white/15 hover:bg-white/20 hover:shadow hover:shadow-white/10 hover:-translate-y-0.5"
+                      }`}
                       onClick={(e) => { e.stopPropagation(); setOpenMode(typeItem.mode); }}
                       aria-label={`Customize ${typeItem.title}${hasCustom ? " (custom active)" : ""}`}
                       title={hasCustom ? "Custom settings active" : "Customize"}
