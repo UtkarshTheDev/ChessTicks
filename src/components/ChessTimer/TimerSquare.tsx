@@ -264,9 +264,9 @@ export const TimerSquare = ({
 
             // Compute size classes to match existing behavior (unchanged across threshold)
             const textSizeClass = isMobile
-              ? "text-[6.2rem] sm:text-[7.5rem] lg:text-[9rem]"
+              ? "text-[6rem] sm:text-[7rem] lg:text-[8.5rem]"
               : (isActive
-                  ? "text-[6.2rem] sm:text-[7.5rem] lg:text-[9rem]"
+                  ? "text-[6rem] sm:text-[7rem] lg:text-[8.5rem]"
                   : "text-7xl sm:text-8xl lg:text-9xl");
 
             const marginTopClass = isMobile
