@@ -60,16 +60,6 @@ export default function Home() {
     useStatsStore.getState().startGame();
   };
 
-  // Keep selected preset time in sync with per-mode custom duration so UI reflects Custom as active
-  useEffect(() => {
-    const { overrides, enabled } = useCustomTimerStore.getState();
-    const ov = overrides[selectedMode];
-    if (!enabled || !ov) return;
-    if (ov.durationMinutes && time !== ov.durationMinutes) {
-      setTime(ov.durationMinutes);
-    }
-    // If only per-side times are set, we don't change the selected time; the Custom tile will still appear active
-  }, [selectedMode]);
 
   const startGame = async () => {
     try {

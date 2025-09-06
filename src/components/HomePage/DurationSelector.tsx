@@ -100,17 +100,9 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
 
   const saveBoth = () => {
     const totalMinutes = hmsToMinutes(bothH, bothM, bothS);
-    // Apply duration to all modes so it persists when user switches modes
-    const allModes: TimerMode[] = [
-      "SUDDEN_DEATH",
-      "SIMPLE_DELAY",
-      "BRONSTEIN_DELAY",
-      "FISCHER_INCREMENT",
-      "MULTI_STAGE",
-    ];
-    // Also clear per-side overrides so Both takes effect
-    allModes.forEach((m) => setOverride(m, { durationMinutes: totalMinutes, whiteMinutes: undefined, blackMinutes: undefined }));
-    onTimeSelect(totalMinutes); // Call onTimeSelect to reflect selection in UI
+    // Save only for the current mode and clear per-side for this mode
+    setOverride(currentMode, { durationMinutes: totalMinutes, whiteMinutes: undefined, blackMinutes: undefined });
+    onTimeSelect(totalMinutes);
     openDurationEditor(false);
   };
   const saveWhite = () => {

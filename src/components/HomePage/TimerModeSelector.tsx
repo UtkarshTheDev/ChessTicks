@@ -12,10 +12,8 @@ export const types = [
     description: "Standard countdown",
     icon: <TimerOff className="w-5 h-5 text-white" />,
     config: (baseMinutes: number) => {
-      const { enabled, overrides } = useCustomTimerStore.getState();
-      const ov = overrides["SUDDEN_DEATH"];
-      const minutes = enabled && ov?.durationMinutes ? ov.durationMinutes : baseMinutes;
-      return createCustomConfig("SUDDEN_DEATH", minutes);
+      // Minutes come from caller; no override here
+      return createCustomConfig("SUDDEN_DEATH", baseMinutes);
     },
   },
   {
@@ -26,9 +24,8 @@ export const types = [
     config: (baseMinutes: number) => {
       const { enabled, overrides } = useCustomTimerStore.getState();
       const ov = overrides["SIMPLE_DELAY"];
-      const minutes = enabled && ov?.durationMinutes ? ov.durationMinutes : baseMinutes;
       const delaySeconds = enabled && ov?.delaySeconds !== undefined ? ov.delaySeconds : 5;
-      return createCustomConfig("SIMPLE_DELAY", minutes, { delaySeconds });
+      return createCustomConfig("SIMPLE_DELAY", baseMinutes, { delaySeconds });
     },
   },
   {
@@ -39,9 +36,8 @@ export const types = [
     config: (baseMinutes: number) => {
       const { enabled, overrides } = useCustomTimerStore.getState();
       const ov = overrides["BRONSTEIN_DELAY"];
-      const minutes = enabled && ov?.durationMinutes ? ov.durationMinutes : baseMinutes;
       const delaySeconds = enabled && ov?.delaySeconds !== undefined ? ov.delaySeconds : 3;
-      return createCustomConfig("BRONSTEIN_DELAY", minutes, { delaySeconds });
+      return createCustomConfig("BRONSTEIN_DELAY", baseMinutes, { delaySeconds });
     },
   },
   {
@@ -52,9 +48,8 @@ export const types = [
     config: (baseMinutes: number) => {
       const { enabled, overrides } = useCustomTimerStore.getState();
       const ov = overrides["FISCHER_INCREMENT"];
-      const minutes = enabled && ov?.durationMinutes ? ov.durationMinutes : baseMinutes;
       const incrementSeconds = enabled && ov?.incrementSeconds !== undefined ? ov.incrementSeconds : 5;
-      return createCustomConfig("FISCHER_INCREMENT", minutes, { incrementSeconds });
+      return createCustomConfig("FISCHER_INCREMENT", baseMinutes, { incrementSeconds });
     },
   },
   {
@@ -63,10 +58,8 @@ export const types = [
     description: "Tournament style",
     icon: <TimerReset className="w-5 h-5 text-white" />,
     config: (baseMinutes: number) => {
-      const { enabled, overrides } = useCustomTimerStore.getState();
-      const ov = overrides["MULTI_STAGE"];
-      const minutesOverride = enabled && ov?.durationMinutes ? ov.durationMinutes : undefined;
-      const effectiveBase = minutesOverride ?? baseMinutes;
+      // Use baseMinutes directly for deciding template
+      const effectiveBase = baseMinutes;
       if (effectiveBase >= 60) {
         // Classical tournament format
         return createCustomConfig("MULTI_STAGE", 90, {
@@ -75,7 +68,7 @@ export const types = [
         });
       } else {
         // Rapid tournament format
-        return createCustomConfig("MULTI_STAGE", effectiveBase, {
+        return createCustomConfig("MULTI_STAGE", baseMinutes, {
           incrementSeconds: 10,
           stages: [{ afterMoves: 30, addMinutes: baseMinutes / 2 }]
         });
