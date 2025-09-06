@@ -42,8 +42,8 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
   const { durationEditorOpen, openDurationEditor, overrides, setOverride, resetOverride } = useCustomTimerStore();
   const o = overrides[currentMode] || {};
 
-  // Wheel options for H:M:S
-  const hourOptions: WheelPickerOption[] = Array.from({ length: 24 }, (_, i) => ({ label: String(i).padStart(2, "0"), value: String(i) }));
+  // Wheel options for H:M:S (limit hours 0..11)
+  const hourOptions: WheelPickerOption[] = Array.from({ length: 12 }, (_, i) => ({ label: String(i).padStart(2, "0"), value: String(i) }));
   const minuteOptions: WheelPickerOption[] = Array.from({ length: 60 }, (_, i) => ({ label: String(i).padStart(2, "0"), value: String(i) }));
   const secondOptions: WheelPickerOption[] = Array.from({ length: 60 }, (_, i) => ({ label: String(i).padStart(2, "0"), value: String(i) }));
 
@@ -66,8 +66,10 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
     const wMinutes = o.whiteMinutes ?? bothMinutes;
     const bMinutes = o.blackMinutes ?? bothMinutes;
     const setFromMinutes = (mins: number, setH: (v: string) => void, setM: (v: string) => void, setS: (v: string) => void) => {
-      const h = Math.floor(mins / 60);
-      const m = mins % 60;
+      const maxMins = 11 * 60 + 59; // 11:59
+      const capped = Math.max(0, Math.min(maxMins, Math.floor(mins)));
+      const h = Math.floor(capped / 60);
+      const m = capped % 60;
       setH(String(h));
       setM(String(m));
       setS('0');
@@ -81,7 +83,8 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
   // Helpers to compute minutes from H:M:S strings
   const hmsToMinutes = (h: string, m: string, s: string) => {
     const totalSeconds = parseInt(h || '0') * 3600 + parseInt(m || '0') * 60 + parseInt(s || '0');
-    return Math.max(1, Math.min(1440, Math.floor(totalSeconds / 60)));
+    const maxMins = 11 * 60 + 59; // cap at 11:59
+    return Math.max(1, Math.min(maxMins, Math.floor(totalSeconds / 60)));
   };
 
   // Commit current tab values when switching tabs so user changes are not lost
