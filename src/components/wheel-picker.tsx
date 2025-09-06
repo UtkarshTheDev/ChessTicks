@@ -33,9 +33,9 @@ function WheelPicker({
   return (
     <WheelPickerPrimitive.WheelPicker
       classNames={{
-        optionItem: "text-neutral-400",
+        optionItem: "text-neutral-300",
         highlightWrapper:
-          "bg-neutral-800/80 text-white ring-1 ring-neutral-700/60",
+         "bg-neutral-800 text-white ring-1 ring-emerald-300/60 shadow-sm shadow-emerald-400/50 transition-all duration-200",
         ...classNames,
       }}
       {...props}

@@ -150,7 +150,7 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
               >
                 <div className="flex items-center justify-center space-x-2">
                   {duration.icon}
-                  <span className="text-[15px] sm:text-lg text-white font-bold max-sm:font-semibold group-hover:text-white transition-colors duration-300">
+                  <span className="text-[14px] sm:text-lg text-white font-bold max-sm:font-semibold group-hover:text-white transition-colors duration-300">
                     {duration.title}
                   </span>
                 </div>
@@ -189,29 +189,33 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
             summary = "Set H:M:S or per-side";
           }
           return (
-            <button
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => openDurationEditor(true)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openDurationEditor(true); }}
               className={`col-span-3 md:col-span-1 cursor-target border ${isCustomActive ? "border-white bg-green-500" : "border-neutral-700 bg-primary/90"}
-                hover:border-neutral-300 w-full flex flex-col items-center justify-center p-4 hover:bg-green-600 rounded-lg transition-all duration-300 group cursor-pointer md:max-w-xl md:mx-auto relative`}
+                hover:border-neutral-300 w-full flex flex-col items-center justify-center py-3 sm:py-4 px-4 hover:bg-green-600 rounded-lg transition-all duration-300 group cursor-pointer md:max-w-xl md:mx-auto relative`}
             >
               {hasCustom && (
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); openDurationEditor(true); }}
-                  className={`absolute top-1 right-1 p-1 rounded-md ${isCustomActive ? "bg-emerald-500" : "bg-white/10"}`}
+                  className={`absolute top-1 right-1 p-1 rounded-md border backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${isCustomActive ? "bg-black/30 text-emerald-300 border-white/10 ring-1 ring-emerald-400/60 shadow-sm shadow-emerald-500/20 hover:bg-black/40 hover:ring-emerald-300/80 hover:shadow-emerald-500/30 hover:-translate-y-0.5" : "bg-white/10 text-white border-white/15 hover:bg-white/20 hover:shadow hover:shadow-white/10 hover:-translate-y-0.5"}`}
                   aria-label="Edit custom duration"
                   title="Edit custom duration"
                 >
-                  <Pencil className={`w-4 h-4 ${isCustomActive ? "text-black" : "text-white"}`} />
+                  <Pencil className={`w-4 h-4 ${isCustomActive ? "text-emerald-300" : "text-white"}`} />
                 </button>
               )}
               <div className="flex items-center justify-center space-x-2">
+                <Pencil className="w-4 h-4 text-white/90 sm:w-5 sm:h-5" />
                 <span className="text-base sm:text-lg text-white font-bold group-hover:text-white transition-colors duration-300">
                   Custom
                 </span>
               </div>
               <span className={`text-[11px] sm:text-xs ${isCustomActive ? "text-white/90" : "text-neutral-300"} transition-colors duration-300`}>{summary}</span>
-            </button>
+            </div>
           );
         })()}
       </div>
