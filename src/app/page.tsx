@@ -114,7 +114,7 @@ export default function Home() {
         />
       </div>
       <main
-        className="flex flex-col items-center min-h-screen px-4 py-6 sm:px-6 lg:px-8"
+        className="flex flex-col items-center min-h-screen px-4 py-5 sm:py-6 sm:px-6 lg:px-8"
         role="main"
         aria-label="Chess Timer Application"
       >

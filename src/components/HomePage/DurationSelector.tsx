@@ -16,19 +16,19 @@ const durations: Duration[] = [
     title: "Blitz",
     time: "5 mins",
     duration: 5,
-    icon: <Zap className="w-5 h-5 text-white" />,
+    icon: <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
   },
   {
     title: "Rapid",
     time: "15 mins",
     duration: 15,
-    icon: <Clock className="w-5 h-5 text-white" />,
+    icon: <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
   },
   {
     title: "Classical",
     time: "60 mins",
     duration: 60,
-    icon: <Timer className="w-5 h-5 text-white" />,
+    icon: <Timer className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
   },
 ];
 
@@ -125,10 +125,10 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
   };
 
   return (
-    <div className="text-white py-4 font-ubuntu flex flex-col items-center justify-center w-full space-y-3">
-      <h2 className="text-lg font-semibold font-ubuntu w-full text-center">Duration</h2>
+    <div className="text-white py-3 sm:py-4 font-ubuntu flex flex-col items-center justify-center w-full space-y-3">
+      <h2 className="text-base sm:text-lg font-semibold font-ubuntu w-full text-center">Duration</h2>
       {/* Preset row + Custom in same grid; Custom spans full row on mobile (col-span-3) */}
-      <div className="grid grid-cols-3 md:grid-cols-4 gap-4 w-full justify-center items-center">
+      <div className="grid grid-cols-3 md:grid-cols-4 gap-4 sm:gap-4 w-full justify-center items-center">
         {(() => {
           const hasCustom = Boolean(o.whiteMinutes || o.blackMinutes || o.durationMinutes);
           const isCustomActive = Boolean(o.whiteMinutes || o.blackMinutes || (o.durationMinutes !== undefined && selectedTime === o.durationMinutes));
@@ -141,11 +141,11 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
                 className={`cursor-target border ${isPresetActive
                   ? "border-white bg-green-500"
                   : "border-neutral-800 bg-primary"
-                  } hover:border-neutral-300 w-full flex flex-col items-center justify-center p-4 hover:bg-green-600 rounded-lg transition-all duration-300 group cursor-pointer`}
+                  } hover:border-neutral-300 w-full flex flex-col items-center justify-center p-3 sm:p-4 hover:bg-green-600 rounded-lg transition-all duration-300 group cursor-pointer`}
               >
                 <div className="flex items-center justify-center space-x-2">
                   {duration.icon}
-                  <span className="text-[14px] sm:text-lg text-white font-bold max-sm:font-semibold group-hover:text-white transition-colors duration-300">
+                  <span className="text-sm sm:text-base text-white font-semibold max-sm:font-medium group-hover:text-white transition-colors duration-300">
                     {duration.title}
                   </span>
                 </div>
@@ -190,7 +190,7 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
               onClick={() => openDurationEditor(true)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openDurationEditor(true); }}
               className={`col-span-3 md:col-span-1 cursor-target border ${isCustomActive ? "border-white bg-green-500" : "border-neutral-700 bg-primary/90"}
-                hover:border-neutral-300 w-full flex flex-col items-center justify-center py-3 sm:py-4 px-4 hover:bg-green-600 rounded-lg transition-all duration-300 group cursor-pointer md:max-w-xl md:mx-auto relative`}
+                hover:border-neutral-300 w-full flex flex-col items-center justify-center py-2.5 sm:py-3 px-3 sm:px-4 hover:bg-green-600 rounded-lg transition-all duration-300 group cursor-pointer md:max-w-xl md:mx-auto relative`}
             >
               {hasCustom && (
                 <button
@@ -205,7 +205,7 @@ const DurationSelector: React.FC<DurationSelectorProps> = ({ selectedTime, onTim
               )}
               <div className="flex items-center justify-center space-x-2">
                 <Pencil className="w-4 h-4 text-white/90 sm:w-5 sm:h-5" />
-                <span className="text-base sm:text-lg text-white font-bold group-hover:text-white transition-colors duration-300">
+                <span className="text-sm sm:text-base text-white font-semibold group-hover:text-white transition-colors duration-300">
                   Custom
                 </span>
               </div>

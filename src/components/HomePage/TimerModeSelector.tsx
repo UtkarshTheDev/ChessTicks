@@ -10,7 +10,7 @@ export const types = [
     title: "Sudden Death",
     mode: "SUDDEN_DEATH" as TimerMode,
     description: "Standard countdown",
-    icon: <TimerOff className="w-5 h-5 text-white" />,
+    icon: <TimerOff className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
     config: (baseMinutes: number) => {
       // Minutes come from caller; no override here
       return createCustomConfig("SUDDEN_DEATH", baseMinutes);
@@ -20,7 +20,7 @@ export const types = [
     title: "Simple Delay",
     mode: "SIMPLE_DELAY" as TimerMode,
     description: "US Delay: 5s",
-    icon: <Pause className="w-5 h-5 text-white" />,
+    icon: <Pause className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
     config: (baseMinutes: number) => {
       const { enabled, overrides } = useCustomTimerStore.getState();
       const ov = overrides["SIMPLE_DELAY"];
@@ -32,7 +32,7 @@ export const types = [
     title: "Bronstein",
     mode: "BRONSTEIN_DELAY" as TimerMode,
     description: "Bronstein: 3s",
-    icon: <RotateCcw className="w-5 h-5 text-white" />,
+    icon: <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
     config: (baseMinutes: number) => {
       const { enabled, overrides } = useCustomTimerStore.getState();
       const ov = overrides["BRONSTEIN_DELAY"];
@@ -44,7 +44,7 @@ export const types = [
     title: "Fischer",
     mode: "FISCHER_INCREMENT" as TimerMode,
     description: "Increment: +5s",
-    icon: <Hourglass className="w-5 h-5 text-white" />,
+    icon: <Hourglass className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
     config: (baseMinutes: number) => {
       const { enabled, overrides } = useCustomTimerStore.getState();
       const ov = overrides["FISCHER_INCREMENT"];
@@ -56,7 +56,7 @@ export const types = [
     title: "Multi-Stage",
     mode: "MULTI_STAGE" as TimerMode,
     description: "Tournament style",
-    icon: <TimerReset className="w-5 h-5 text-white" />,
+    icon: <TimerReset className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
     config: (baseMinutes: number) => {
       // Use baseMinutes directly for deciding template
       const effectiveBase = baseMinutes;
@@ -162,9 +162,9 @@ const TimerModeSelector: React.FC<TimerModeSelectorProps> = ({ selectedMode, onM
   };
 
   return (
-    <div className="text-white py-4 font-ubuntu flex flex-col items-center justify-center w-full space-y-3 border-t border-neutral-500">
-      <h2 className="text-lg font-semibold font-ubuntu text-center w-full">Timer Modes</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 w-full justify-center items-center">
+    <div className="text-white py-3 sm:py-4 font-ubuntu flex flex-col items-center justify-center w-full space-y-3 border-t border-neutral-500">
+      <h2 className="text-base sm:text-lg font-semibold font-ubuntu text-center w-full">Timer Modes</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3 w-full justify-center items-center">
         {types.map((typeItem, index) => {
           const ov = overrides[typeItem.mode];
           const hasCustom = !!ov && Object.keys(ov).length > 0 && enabled;
@@ -179,13 +179,13 @@ const TimerModeSelector: React.FC<TimerModeSelectorProps> = ({ selectedMode, onM
                 className={`relative cursor-target border ${selectedMode === typeItem.mode
                   ? "border-white bg-green-500"
                   : "border-neutral-800 bg-primary"
-                  } hover:border-neutral-300 w-full flex flex-col items-center justify-center p-3 hover:bg-green-600 rounded-lg transition-all duration-300 group cursor-pointer`}
+                  } hover:border-neutral-300 w-full flex flex-col items-center justify-center p-2.5 sm:p-3 hover:bg-green-600 rounded-lg transition-all duration-300 group cursor-pointer`}
               >
                 <div className="absolute top-1 right-1 flex items-center gap-1">
                   {!hidePencil && (
                     <button
                       type="button"
-                      className={`p-1.5 rounded-md border backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                      className={`p-1 sm:p-1.5 rounded-md border backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
                         hasCustom
                           ? "bg-black/30 text-emerald-300 border-white/10 ring-1 ring-emerald-400/60 shadow-sm shadow-emerald-500/20 hover:bg-black/40 hover:ring-emerald-300/80 hover:shadow-emerald-500/30 hover:-translate-y-0.5"
                           : "bg-white/10 text-white border-white/15 hover:bg-white/20 hover:shadow hover:shadow-white/10 hover:-translate-y-0.5"
@@ -201,7 +201,7 @@ const TimerModeSelector: React.FC<TimerModeSelectorProps> = ({ selectedMode, onM
 
                 <div className="flex items-center justify-center space-x-1 mb-1">
                   {typeItem.icon}
-                  <span className="text-[13px] sm:text-sm text-white font-bold max-sm:font-semibold group-hover:text-white transition-colors duration-300">
+                  <span className="text-xs sm:text-sm text-white font-semibold max-sm:font-medium group-hover:text-white transition-colors duration-300">
                     {typeItem.title}
                   </span>
                 </div>
