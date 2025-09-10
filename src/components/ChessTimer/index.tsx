@@ -24,7 +24,9 @@ import {
   controlsEntranceMobile,
   controlsButtonsContainer,
   controlButtonVariant,
-  smoothTween
+  smoothTween,
+  mobileHeightSpring,
+  HYSTERESIS_MS,
 } from "@/utils/timerAnimations";
 import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
 
@@ -64,11 +66,25 @@ export const ChessTimer = ({ onReset }: ChessTimerProps) => {
   const [isMobile, setIsMobile] = useState(false);
   
   // Optimized animation state management with performance monitoring
+  // Visual active player with micro-hysteresis to stabilize rapid toggles (mobile)
+  const [visualActivePlayer, setVisualActivePlayer] = useState<typeof activePlayer>(activePlayer);
+
+  useEffect(() => {
+    let t: number | undefined;
+    // Apply hysteresis delay only when switching between players; null follows same delay for consistency
+    t = window.setTimeout(() => {
+      setVisualActivePlayer(activePlayer);
+    }, HYSTERESIS_MS);
+    return () => {
+      if (t) window.clearTimeout(t);
+    };
+  }, [activePlayer]);
+
   const { 
     animationState, 
     performanceMetrics, 
     shouldUseReducedMotion 
-  } = useOptimizedAnimations(activePlayer, {
+  } = useOptimizedAnimations(visualActivePlayer, {
     enablePerformanceMonitoring: process.env.NODE_ENV === 'development',
     onPerformanceUpdate: (metrics: PerformanceMetrics) => {
       // Log performance issues in development
@@ -309,7 +325,7 @@ export const ChessTimer = ({ onReset }: ChessTimerProps) => {
               animate={isMobile ? {
                 height: animationState.topSquareHeight
               } : undefined}
-              transition={isMobile ? smoothTween : undefined}
+              transition={isMobile ? mobileHeightSpring : undefined}
               initial={isMobile ? {
                 height: animationState.topSquareHeight
               } : undefined}
@@ -318,7 +334,9 @@ export const ChessTimer = ({ onReset }: ChessTimerProps) => {
                 minHeight: '150px',
                 maxHeight: '58vh',
                 alignSelf: 'flex-start',
-                transformOrigin: 'top center'
+                transformOrigin: 'top center',
+                willChange: 'height',
+                overflow: 'hidden',
               } : undefined}
             >
               <TimerSquare
@@ -373,7 +391,7 @@ export const ChessTimer = ({ onReset }: ChessTimerProps) => {
               animate={isMobile ? {
                 height: animationState.bottomSquareHeight
               } : undefined}
-              transition={isMobile ? smoothTween : undefined}
+              transition={isMobile ? mobileHeightSpring : undefined}
               initial={isMobile ? {
                 height: animationState.bottomSquareHeight
               } : undefined}
@@ -382,7 +400,9 @@ export const ChessTimer = ({ onReset }: ChessTimerProps) => {
                 minHeight: '150px',
                 maxHeight: '58vh',
                 alignSelf: 'flex-end',
-                transformOrigin: 'bottom center'
+                transformOrigin: 'bottom center',
+                willChange: 'height',
+                overflow: 'hidden',
               } : undefined}
             >
               <TimerSquare

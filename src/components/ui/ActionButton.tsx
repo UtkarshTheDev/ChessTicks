@@ -8,6 +8,7 @@ interface ActionButtonProps {
   disabled?: boolean;
   icon: React.ReactNode;
   label: string;
+  isMobile?: boolean;
 }
 
 export const ActionButton = ({
@@ -16,6 +17,7 @@ export const ActionButton = ({
   disabled,
   icon,
   label,
+  isMobile = false,
 }: ActionButtonProps) => {
   const variants = {
     check: {
@@ -43,7 +45,8 @@ export const ActionButton = ({
         "min-h-[44px] min-w-[44px] rounded-xl",
         "px-3 py-2 sm:px-4 sm:py-2.5",
         // Layout and transitions
-        "border-2 transition-all duration-300",
+        // Restrict transitions to transform for better perf; avoid transitioning expensive properties
+        "border-2 transition-transform duration-300 will-change-transform",
         "flex items-center gap-2 sm:gap-2.5",
         "font-semibold text-[12px] sm:text-sm whitespace-nowrap",
         "backdrop-blur-md relative overflow-hidden",
@@ -54,15 +57,14 @@ export const ActionButton = ({
         // Additional disabled state styling for better visual feedback
         disabled && "opacity-100 cursor-not-allowed hover:translate-y-0"
       )}
-      whileHover={{
-        scale: disabled ? 1 : 1.05,
-        boxShadow: disabled ? undefined : "0 10px 25px rgba(0, 0, 0, 0.2)"
+      whileHover={isMobile ? undefined : {
+        scale: disabled ? 1 : 1.04,
       }}
-      whileTap={{ scale: disabled ? 1 : 0.95 }}
+      whileTap={{ scale: disabled ? 1 : 0.98 }}
       initial={false}
     >
       {/* Glare overlay (non-interactive) for premium feel */}
-      {!disabled && (
+      {!disabled && !isMobile && (
         <div className="absolute inset-0 pointer-events-none">
           <GlareHover
             width="100%"
@@ -83,7 +85,7 @@ export const ActionButton = ({
       <motion.span
         initial={false}
         animate={{ rotate: 0 }}
-        whileHover={{ rotate: disabled ? 0 : 5, scale: disabled ? 1 : 1.1 }}
+        whileHover={isMobile ? undefined : { rotate: disabled ? 0 : 5, scale: disabled ? 1 : 1.06 }}
         className={cn(
           "transform transition-all duration-200 relative z-10",
           disabled && "opacity-80"

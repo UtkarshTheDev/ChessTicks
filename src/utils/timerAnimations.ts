@@ -65,6 +65,32 @@ export const smoothTween = {
   ease: SMOOTH_EASE,
 };
 
+// Mobile height spring tuned for "slower and luxurious" feel with subtle overshoot
+// Use for height-based animations when transform-only is not feasible due to layout needs
+export const mobileHeightSpring = {
+  type: "spring" as const,
+  stiffness: 160, // Even slower, more luxurious response
+  damping: 33, // Well-damped with tiny/subtle overshoot
+  mass: 1.2, // Heavier feel for premium glide
+  restDelta: 0.002,
+  restSpeed: 0.01,
+};
+
+// Micro-hysteresis to stabilize rapid flip-flops in visual target without delaying input logic
+export const HYSTERESIS_MS = 25; // Reduced for a smaller visual delay while retaining stability
+
+// Action box entrance tuning: appear after most of height animation completes (mobile)
+// Chosen ~360ms based on current spring feel to align around ~75–80% completion visually
+export const ACTION_BOX_DELAY_MS = 320; // Slightly earlier to reduce perceived delay while still post height-anim
+
+export const actionBoxSpring = {
+  type: "spring" as const,
+  stiffness: 220,
+  damping: 28,
+  mass: 1.05,
+  duration: 0.5
+};
+
 // Font scale transition (mobile): tuned to 500ms with material-like easing
 export const fontScaleTransition = {
   type: "tween" as const,

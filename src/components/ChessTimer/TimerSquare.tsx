@@ -12,6 +12,8 @@ import {
   TIMER_FONT_SCALE,
   ANIMATION_CSS_CLASSES,
   prefersReducedMotion,
+  ACTION_BOX_DELAY_MS,
+  actionBoxSpring,
 } from "@/utils/timerAnimations";
 
 interface TimerSquareProps {
@@ -374,40 +376,13 @@ export const TimerSquare = ({
         initial={false}
         animate={{
           opacity: isRunning && isActive ? 1 : 0,
-          scale: isRunning && isActive ? 1 : 0.8,
-          y: isRunning && isActive ? 0 : (isMobile && player === "black" ? -20 : 20),
-          filter: isRunning && isActive ? "saturate(1)" : "saturate(0.5)",
+          scale: isRunning && isActive ? 1 : 0.92,
+          y: isRunning && isActive ? 0 : (isMobile && player === "black" ? -14 : 14),
         }}
         transition={{
-          // Slower, smoother entrance
-          type: "spring",
-          stiffness: 220,
-          damping: 24,
-          mass: 1.2,
-          duration: 0.6,
-          // Delay on mobile so buttons appear after timer height transitions (~1.8s) + small pause
-          delay: isMobile && isRunning && isActive ? 0.8 : 0,
-          opacity: {
-            duration: 0.45,
-            ease: "easeOut",
-            delay: isMobile && isRunning && isActive ? 0.8 : 0,
-          },
-          scale: {
-            type: "spring",
-            stiffness: 280,
-            damping: 24,
-            mass: 0.9,
-            duration: 0.55,
-            delay: isMobile && isRunning && isActive ? 1 : 0,
-          },
-          y: {
-            type: "spring",
-            stiffness: 260,
-            damping: 24,
-            mass: 1.0,
-            duration: 0.55,
-            delay: isMobile && isRunning && isActive ? 1.2 : 0,
-          },
+          // Appear after most of the height animation completes on mobile
+          ...actionBoxSpring,
+          delay: isMobile && isRunning && isActive ? ACTION_BOX_DELAY_MS / 1000 : 0,
         }}
         data-action-button-container="true"
         onClick={(e) => e.stopPropagation()}
@@ -420,6 +395,7 @@ export const TimerSquare = ({
           ...(isMobile && player === "black"
             ? { top: "max(1.25rem, calc(env(safe-area-inset-top, 0px) + 1rem))" }
             : { bottom: "max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))" }),
+          willChange: "transform, opacity",
         }}
       >
         <ActionButton
@@ -432,6 +408,7 @@ export const TimerSquare = ({
           disabled={!isActive || !isRunning}
           icon={<Check className="w-5 h-5" />}
           label="Check"
+          isMobile={isMobile}
         />
         <ActionButton
           variant="checkmate"
@@ -443,6 +420,7 @@ export const TimerSquare = ({
           disabled={!isActive || !isRunning}
           icon={<Trophy className="w-5 h-5" />}
           label="Mate"
+          isMobile={isMobile}
         />
         <ActionButton
           variant="draw"
@@ -454,6 +432,7 @@ export const TimerSquare = ({
           disabled={!isActive || !isRunning}
           icon={<Handshake className="w-5 h-5" />}
           label="Draw"
+          isMobile={isMobile}
         />
       </motion.div>
     </motion.div>
