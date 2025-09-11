@@ -2,6 +2,7 @@
   "name": "ChessTicks - Professional Chess Timer",
   "short_name": "ChessTicks",
   "description": "Professional chess timer with all 5 tournament modes: Sudden Death, Fischer Increment, Simple Delay, Bronstein Delay & Multi-Stage. Perfect for chess players and tournaments.",
+  "id": "/?app_id=chessticks",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#121212",
@@ -13,18 +14,9 @@
   "categories": ["games", "sports", "utilities"],
   "screenshots": [
     {
-      "src": "/screenshot-wide.png",
-      "sizes": "1280x720",
+      "src": "/logo.png",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "ChessTicks Timer Interface"
-    },
-    {
-      "src": "/screenshot-narrow.png", 
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "ChessTicks Mobile Interface"
+      "label": "ChessTicks Logo"
     }
   ],
   "icons": [

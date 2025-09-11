@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.chessticks.twa",
+        "sha256_cert_fingerprints": ["7F:97:8D:BF:8C:50:21:25:11:D3:5D:CF:CC:79:EE:D8:02:71:F5:CB:6E:FD:4C:58:2F:A0:FA:80:4A:EB:46:BB"]
+      }
+    }]
