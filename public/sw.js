@@ -18,6 +18,14 @@ const PRECACHE_URLS = [
   '/icons/apple-touch-icon.png',
 ];
 
+// Allow the app to trigger immediate activation of an updated SW
+// Usage from the client: navigator.serviceWorker.controller?.postMessage({ type: 'SKIP_WAITING' })
+self.addEventListener('message', (event) => {
+  if (event?.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS)).then(() => self.skipWaiting())
