@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "app.vercel.chessticks.twa",
-        "sha256_cert_fingerprints": ["7F:97:8D:BF:8C:50:21:25:11:D3:5D:CF:CC:79:EE:D8:02:71:F5:CB:6E:FD:4C:58:2F:A0:FA:80:4A:EB:46:BB"]
+        "sha256_cert_fingerprints": ["29:67:DF:A4:50:F9:4C:20:ED:64:F3:3D:13:9D:EE:1B:F0:5D:AC:CD:09:D0:27:55:91:FE:FC:BF:27:37:50:73"]
       }
     }]
