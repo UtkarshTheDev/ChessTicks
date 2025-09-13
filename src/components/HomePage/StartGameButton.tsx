@@ -1,33 +1,60 @@
 import { Button } from "@/components/ui/button";
 import { PlayIcon } from "lucide-react";
-import GlareHover from "../../Animations/GlareHover/GlareHover";
+import GlowButton from "@/components/ui/GlowButton";
 
 interface StartGameButtonProps {
   onClick: () => void;
+  isInstalled?: boolean; // PWA/TWA installed state from parent
 }
 
-const StartGameButton: React.FC<StartGameButtonProps> = ({ onClick }) => (
+const StartGameButton: React.FC<StartGameButtonProps> = ({ onClick, isInstalled = false }) => (
   <div className="flex justify-center items-center w-full fixed bottom-4 left-0 right-0 px-4 sm:px-8">
     <div className="relative w-full">
-      <Button
-        className="cursor-target group relative w-full mb-3 sm:mb-4 font-unbounded text-2xl sm:text-2xl font-bold text-white bg-green-500 border border-neutral-300 hover:border-white hover:bg-green-600 transition-all duration-300 rounded-lg flex items-center justify-center py-7 sm:py-7 overflow-hidden"
-        onClick={onClick}
-      >
-        <div className="absolute inset-0 pointer-events-none">
-          <GlareHover
-            width="100%"
-            height="100%"
-            glareColor="#22c55e"
-            glareOpacity={0.75}
-            glareAngle={-30}
-            glareSize={300}
-            transitionDuration={800}
-            className="!border-transparent !bg-transparent"
-            style={{ pointerEvents: "none" }}
-          />
+      {/* Mobile: use Glow when installed, otherwise minimal gray */}
+      {isInstalled ? (
+        <div className="block sm:hidden">
+          <GlowButton
+            variant="green"
+            disableChevron
+            className="w-full justify-center mb-3 sm:mb-4 font-unbounded text-base font-bold text-white py-1"
+            onClick={onClick}
+          >
+            <span className="inline-flex items-center gap-2 whitespace-nowrap">
+              Start <PlayIcon className="!size-4" /> Now
+            </span>
+          </GlowButton>
         </div>
-        Start <PlayIcon className="!size-6" /> Now
-      </Button>
+      ) : (
+        <Button
+          className="block sm:hidden cursor-target group relative w-full mb-3 sm:mb-4 font-unbounded
+          text-base font-medium
+          text-white
+          bg-neutral-800
+          border border-white/30 hover:border-white/50
+          hover:bg-neutral-700
+          transition-all duration-300 rounded-lg flex items-center justify-center
+          py-6 overflow-hidden"
+          onClick={onClick}
+        >
+          <span className="inline-flex items-center gap-2 whitespace-nowrap">
+            Start <PlayIcon className="!size-4" /> Now
+          </span>
+        </Button>
+      )}
+
+      {/* Desktop: always GlowButton */}
+      <div className="hidden sm:block">
+        <GlowButton
+          variant="green"
+          disableChevron
+          className="w-full justify-center mb-3 sm:mb-4 font-unbounded text-2xl font-bold text-white py-1"
+          onClick={onClick}
+        >
+          <span className="inline-flex items-center gap-2 whitespace-nowrap">
+            Start <PlayIcon className="!size-6" /> Now
+          </span>
+        </GlowButton>
+      </div>
     </div>
   </div>
 );

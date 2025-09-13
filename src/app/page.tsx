@@ -15,6 +15,8 @@ import StartGameButton from "@/components/HomePage/StartGameButton";
 import SeoContent from "@/components/HomePage/SeoContent";
 import GitHubButton from "@/components/HomePage/GitHubButton";
 import { useCustomTimerStore } from "@/stores/customTimerStore";
+import DownloadAppButton from "@/components/HomePage/DownloadAppButton";
+import { useAppInstallState } from "@/lib/useAppInstallState";
 
 type GameState = "home" | "playing";
 
@@ -24,6 +26,7 @@ export default function Home() {
   const [time, setTime] = useState(15);
   const [selectedMode, setSelectedMode] = useState<TimerMode>("SUDDEN_DEATH");
   const [gameState, setGameState] = useState<GameState>("home");
+  const { isInstalled } = useAppInstallState();
 
   const setTimer = () => {
     const selectedTypeObj = types.find((t) => t.mode === selectedMode);
@@ -95,7 +98,13 @@ export default function Home() {
             onModeSelect={setSelectedMode}
           />
         </div>
-        <StartGameButton onClick={startGame} />
+        {/* Mobile-only APK Download CTA above StartGameButton (hidden if installed) */}
+        {!isInstalled && (
+          <div className="sm:hidden fixed bottom-24 left-0 right-0 px-4 z-10">
+            <DownloadAppButton apkUrl="/chessticks.apk" />
+          </div>
+        )}
+        <StartGameButton onClick={startGame} isInstalled={isInstalled} />
       </>
     );
   };
