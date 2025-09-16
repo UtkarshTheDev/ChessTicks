@@ -17,7 +17,7 @@ import GitHubButton from "@/components/HomePage/GitHubButton";
 import { useCustomTimerStore } from "@/stores/customTimerStore";
 import DownloadAppButton from "@/components/HomePage/DownloadAppButton";
 import { useAppInstallState } from "@/lib/useAppInstallState";
-import { useRouter, useSearchParams } from "next/navigation";
+// Note: Avoid useSearchParams to prevent Suspense requirement during prerender
 
 type GameState = "home" | "playing";
 
@@ -28,8 +28,6 @@ export default function Home() {
   const [selectedMode, setSelectedMode] = useState<TimerMode>("SUDDEN_DEATH");
   const [gameState, setGameState] = useState<GameState>("home");
   const { isInstalled } = useAppInstallState();
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const handledShortcutRef = useRef(false);
 
   const setTimer = () => {
@@ -116,7 +114,9 @@ export default function Home() {
   // Handle PWA app shortcuts (?mode=blitz|rapid|tournament)
   useEffect(() => {
     if (handledShortcutRef.current) return;
-    const mode = searchParams?.get("mode");
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    const mode = sp.get("mode");
     if (!mode) return;
 
     handledShortcutRef.current = true;
@@ -149,15 +149,9 @@ export default function Home() {
     setTimeout(() => {
       startGame();
       // Clean the URL so it doesn't retrigger on navigations
-      try {
-        router.replace("/");
-      } catch {
-        if (typeof window !== "undefined") {
-          window.history.replaceState({}, "", "/");
-        }
-      }
+      window.history.replaceState({}, "", "/");
     }, 0);
-  }, [searchParams, router]);
+  }, []);
 
   return (
     <>
