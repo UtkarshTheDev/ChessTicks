@@ -16,11 +16,11 @@ const StartGameButton: React.FC<StartGameButtonProps> = ({ onClick, isInstalled 
           <GlowButton
             variant="green"
             disableChevron
-            className="w-full justify-center mb-3 sm:mb-4 font-unbounded text-base font-bold text-white py-1"
+            className="w-full justify-center mb-3 sm:mb-4 font-unbounded text-lg font-bold text-white py-1"
             onClick={onClick}
           >
             <span className="inline-flex items-center gap-2 whitespace-nowrap">
-              Start <PlayIcon className="!size-4" /> Now
+              Start <PlayIcon className="!size-5" /> Now
             </span>
           </GlowButton>
         </div>

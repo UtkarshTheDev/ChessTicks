@@ -1,7 +1,7 @@
 "use client";
 
 import { useTimerStore } from "@/stores/timerStore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTimerTypeStore, TimerMode } from "@/stores/timerTypeStore";
 import { ChessTimer } from "@/components/ChessTimer";
 import { useStatsStore } from "@/stores/statsStore";
@@ -17,6 +17,7 @@ import GitHubButton from "@/components/HomePage/GitHubButton";
 import { useCustomTimerStore } from "@/stores/customTimerStore";
 import DownloadAppButton from "@/components/HomePage/DownloadAppButton";
 import { useAppInstallState } from "@/lib/useAppInstallState";
+// Note: Avoid useSearchParams to prevent Suspense requirement during prerender
 
 type GameState = "home" | "playing";
 
@@ -27,6 +28,7 @@ export default function Home() {
   const [selectedMode, setSelectedMode] = useState<TimerMode>("SUDDEN_DEATH");
   const [gameState, setGameState] = useState<GameState>("home");
   const { isInstalled } = useAppInstallState();
+  const handledShortcutRef = useRef(false);
 
   const setTimer = () => {
     const selectedTypeObj = types.find((t) => t.mode === selectedMode);
@@ -108,6 +110,48 @@ export default function Home() {
       </>
     );
   };
+
+  // Handle PWA app shortcuts (?mode=blitz|rapid|tournament)
+  useEffect(() => {
+    if (handledShortcutRef.current) return;
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    const mode = sp.get("mode");
+    if (!mode) return;
+
+    handledShortcutRef.current = true;
+
+    // Map incoming shortcut to internal TimerMode and default duration
+    let mappedMode: TimerMode = "SUDDEN_DEATH";
+    let minutes = 15;
+    switch (mode.toLowerCase()) {
+      case "blitz":
+        mappedMode = "SUDDEN_DEATH";
+        minutes = 5; // 5+0 Blitz by default
+        break;
+      case "rapid":
+        mappedMode = "SUDDEN_DEATH";
+        minutes = 15; // 15+0 Rapid by default
+        break;
+      case "tournament":
+        mappedMode = "MULTI_STAGE";
+        minutes = 90; // Trigger classical multi-stage config
+        break;
+      default:
+        // Unknown value, ignore
+        return;
+    }
+
+    // Apply selections and auto-start
+    setSelectedMode(mappedMode);
+    setTime(minutes);
+    // Defer start to ensure state updates settle
+    setTimeout(() => {
+      startGame();
+      // Clean the URL so it doesn't retrigger on navigations
+      window.history.replaceState({}, "", "/");
+    }, 0);
+  }, []);
 
   return (
     <>
