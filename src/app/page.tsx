@@ -30,15 +30,18 @@ export default function Home() {
   const { isInstalled } = useAppInstallState();
   const handledShortcutRef = useRef(false);
 
-  const setTimer = () => {
-    const selectedTypeObj = types.find((t) => t.mode === selectedMode);
+  // Setup timer using either provided args or current state
+  const setTimer = (modeArg?: TimerMode, minutesArg?: number) => {
+    const modeToUse = modeArg ?? selectedMode;
+    const minutesToUse = minutesArg ?? time;
+    const selectedTypeObj = types.find((t) => t.mode === modeToUse);
     if (selectedTypeObj) {
-      const config = selectedTypeObj.config(time);
+      const config = selectedTypeObj.config(minutesToUse);
       setConfig(config);
       initializeTimer(config);
       // Apply asymmetric times if configured via custom store
       const { overrides, enabled } = useCustomTimerStore.getState();
-      const ov = overrides[selectedMode];
+      const ov = overrides[modeToUse];
       if (enabled && ov && (ov.whiteMinutes || ov.blackMinutes)) {
         const engine = useTimerStore.getState().engine;
         if (engine) {
@@ -66,9 +69,11 @@ export default function Home() {
   };
 
 
-  const startGame = async () => {
+  const startGame = async (modeArg?: TimerMode, minutesArg?: number) => {
     try {
-      setTimer();
+      if (modeArg) setSelectedMode(modeArg);
+      if (typeof minutesArg === "number") setTime(minutesArg);
+      setTimer(modeArg, minutesArg);
       setGameState("playing");
     } catch (err) {
       console.error(err);
@@ -142,15 +147,10 @@ export default function Home() {
         return;
     }
 
-    // Apply selections and auto-start
-    setSelectedMode(mappedMode);
-    setTime(minutes);
-    // Defer start to ensure state updates settle
-    setTimeout(() => {
-      startGame();
-      // Clean the URL so it doesn't retrigger on navigations
-      window.history.replaceState({}, "", "/");
-    }, 0);
+    // Start immediately with explicit parameters to avoid async state race
+    startGame(mappedMode, minutes);
+    // Clean the URL so it doesn't retrigger on navigations
+    window.history.replaceState({}, "", "/");
   }, []);
 
   return (
