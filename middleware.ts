@@ -7,9 +7,15 @@ export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   if (pathname.startsWith('/launch/')) {
     const url = request.nextUrl.clone();
+    // Extract mode from /launch/<mode>
+    const mode = pathname.replace('/launch/', '').split('/')[0];
     url.pathname = '/';
-    // Preserve original search if any (generally none for /launch/*)
-    url.search = search;
+    // Preserve original search if any, but ensure mode is present
+    const params = new URLSearchParams(search);
+    if (mode && !params.has('mode')) {
+      params.set('mode', mode);
+    }
+    url.search = params.toString() ? `?${params.toString()}` : '';
     return NextResponse.rewrite(url);
   }
   return NextResponse.next();

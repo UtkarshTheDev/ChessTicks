@@ -275,7 +275,7 @@ export const ChessTimer = ({ onReset }: ChessTimerProps) => {
       initial={!shouldUseReducedMotion ? "hidden" : undefined}
       animate={!shouldUseReducedMotion ? "show" : undefined}
     >
-      <div className="relative h-full flex flex-col px-1 sm:px-2 pt-20 md:pt-12 pb-8 md:pb-12">
+      <div className="relative h-full flex flex-col px-0 sm:px-1 md:px-2 pt-20 md:pt-12 pb-8 md:pb-12">
         {/* Desktop header controls - positioned to not interfere with timer squares */}
         <motion.div 
           className="absolute top-4 left-0 right-0 z-30 flex items-center justify-between px-6"
@@ -321,7 +321,7 @@ export const ChessTimer = ({ onReset }: ChessTimerProps) => {
           >
             {/* Inner wrapper handles mobile height animation only to avoid conflicts with entrance variants */}
             <motion.div
-              className="w-full h-full"
+              className="w-full md:w-full h-full mx-auto"
               animate={isMobile ? {
                 height: animationState.topSquareHeight
               } : undefined}
@@ -387,7 +387,7 @@ export const ChessTimer = ({ onReset }: ChessTimerProps) => {
           >
             {/* Inner wrapper handles mobile height animation only to avoid conflicts with entrance variants */}
             <motion.div
-              className="w-full h-full"
+              className="w-full md:w-full h-full mx-auto"
               animate={isMobile ? {
                 height: animationState.bottomSquareHeight
               } : undefined}

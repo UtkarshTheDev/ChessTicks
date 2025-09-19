@@ -30,42 +30,120 @@ export default function Home() {
   const { isInstalled } = useAppInstallState();
   // Track last handled URL to prevent duplicate handling within the same lifecycle
   const lastHandledUrlRef = useRef<string | null>(null);
+  // Track if we're currently handling a PWA shortcut to adjust logging/behavior
+  const handlingShortcutRef = useRef<boolean>(false);
 
-  // Setup timer using either provided args or current state
+  // When user changes timer mode from the main page, avoid carrying over an arbitrary custom
+  // duration (e.g., 50) unless it matches a standard preset. This keeps UX predictable.
+  const handleModeSelect = (mode: TimerMode) => {
+    setSelectedMode(mode);
+    const presetMinutes = [5, 15, 60];
+    const isPreset = presetMinutes.includes(time);
+    if (!isPreset) {
+      // Reset to sensible defaults per mode
+      const defaultMinutes = mode === "MULTI_STAGE" ? 90 : 15;
+      setTime(defaultMinutes);
+    }
+  };
+
+  // Setup timer using either provided args or current state (with robust fallbacks)
   const setTimer = (modeArg?: TimerMode, minutesArg?: number) => {
-    const modeToUse = modeArg ?? selectedMode;
-    const minutesToUse = minutesArg ?? time;
-    const selectedTypeObj = types.find((t) => t.mode === modeToUse);
+    let modeToUse = modeArg ?? selectedMode;
+    let minutesToUse = minutesArg ?? time;
+
+    // Do NOT auto-apply durationMinutes here. The selected time comes from UI (DurationSelector)
+    // and is passed explicitly via `time` or `minutesArg`. Applying durationMinutes here would
+    // override the user's current selection and cause unexpected starts.
+
+    // Guard minutes
+    if (!Number.isFinite(minutesToUse) || minutesToUse <= 0) {
+      console.warn("Invalid minutesToUse; falling back to 15", { minutesArg, stateTime: time, modeToUse });
+      minutesToUse = 15;
+    }
+
+    // Normalize/validate mode
+    const validModes: TimerMode[] = [
+      "SUDDEN_DEATH",
+      "SIMPLE_DELAY",
+      "BRONSTEIN_DELAY",
+      "FISCHER_INCREMENT",
+      "MULTI_STAGE",
+    ];
+    let appliedMode: TimerMode = modeToUse;
+    if (!validModes.includes(appliedMode)) {
+      if (handlingShortcutRef.current) {
+        console.warn("Invalid shortcut mode; defaulting to Sudden Death", { modeToUse });
+      }
+      appliedMode = "SUDDEN_DEATH";
+    }
+
+    const selectedTypeObj = types.find((t) => t.mode === appliedMode);
+    let baseConfig;
     if (selectedTypeObj) {
-      const config = selectedTypeObj.config(minutesToUse);
-      setConfig(config);
-      initializeTimer(config);
-      // Apply asymmetric times if configured via custom store
+      baseConfig = selectedTypeObj.config(minutesToUse);
+    } else {
+      // This should not happen; silently fallback for normal starts, warn for shortcuts
+      if (handlingShortcutRef.current) {
+        console.warn("Shortcut timer type not found; defaulting to Sudden Death", { modeToUse: appliedMode });
+      }
+      appliedMode = "SUDDEN_DEATH";
+      const fallback = types.find((t) => t.mode === "SUDDEN_DEATH");
+      baseConfig = fallback ? fallback.config(minutesToUse) : { mode: "SUDDEN_DEATH", baseMillis: minutesToUse * 60 * 1000 } as any;
+    }
+
+    // Apply configuration
+    try {
+      setConfig(baseConfig);
+      initializeTimer(baseConfig);
+      // Force-initialize display to base time to avoid any zero-state flash
+      try {
+        const engine = useTimerStore.getState().engine;
+        const baseSecs = Math.max(1, Math.floor((baseConfig.baseMillis || 0) / 1000));
+        if (engine && baseSecs > 0) {
+          engine.setTime("white", baseSecs);
+          engine.setTime("black", baseSecs);
+        }
+      } catch {}
+      if (handlingShortcutRef.current) {
+        console.info("Initialized timer via shortcut", { mode: appliedMode, minutes: minutesToUse, baseMillis: baseConfig.baseMillis });
+      } else {
+        // Keep normal starts quieter to avoid noise
+        // console.debug("Initialized timer", { mode: appliedMode, minutes: minutesToUse });
+      }
+    } catch (e) {
+      console.error("Failed to initialize timer", e);
+    }
+
+    // Apply asymmetric times if configured via custom store
+    try {
       const { overrides, enabled } = useCustomTimerStore.getState();
-      const ov = overrides[modeToUse];
-      if (enabled && ov && (ov.whiteMinutes || ov.blackMinutes)) {
+      const ov = overrides[appliedMode];
+      // Apply per-side overrides ONLY when user selected the Custom duration for this mode
+      const userChoseCustom = Boolean(ov && ov.durationMinutes !== undefined && ov.durationMinutes === minutesToUse);
+      if (enabled && ov && userChoseCustom && (ov.whiteMinutes !== undefined || ov.blackMinutes !== undefined)) {
         const engine = useTimerStore.getState().engine;
         if (engine) {
-          // If only one side is set, default the other side to 15:00 per requirements
-          const fallbackMinutes = 15;
-          if (ov.whiteMinutes) {
+          const fallbackMinutes = Math.max(1, Math.floor(minutesToUse));
+          if (ov.whiteMinutes !== undefined) {
             engine.setTime("white", Math.floor(ov.whiteMinutes * 60));
-          }
-          if (ov.blackMinutes) {
-            engine.setTime("black", Math.floor(ov.blackMinutes * 60));
-          }
-          if (ov.whiteMinutes === undefined && ov.blackMinutes !== undefined) {
+          } else if (ov.blackMinutes !== undefined) {
             engine.setTime("white", Math.floor(fallbackMinutes * 60));
           }
-          if (ov.blackMinutes === undefined && ov.whiteMinutes !== undefined) {
+          if (ov.blackMinutes !== undefined) {
+            engine.setTime("black", Math.floor(ov.blackMinutes * 60));
+          } else if (ov.whiteMinutes !== undefined) {
             engine.setTime("black", Math.floor(fallbackMinutes * 60));
           }
         }
       }
-      setTimeoutCallback((player: "white" | "black") => {
-        console.log(`${player} ran out of time!`);
-      });
+    } catch (e) {
+      console.error("Error applying asymmetric overrides", e);
     }
+
+    setTimeoutCallback((player: "white" | "black") => {
+      console.log(`${player} ran out of time!`);
+    });
+
     useStatsStore.getState().startGame();
   };
 
@@ -103,7 +181,7 @@ export default function Home() {
           <DurationSelector selectedTime={time} onTimeSelect={setTime} currentMode={selectedMode} />
           <TimerModeSelector
             selectedMode={selectedMode}
-            onModeSelect={setSelectedMode}
+            onModeSelect={handleModeSelect}
           />
         </div>
         {/* Mobile-only APK Download CTA above StartGameButton (hidden if installed) */}
@@ -112,7 +190,7 @@ export default function Home() {
             <DownloadAppButton apkUrl="/chessticks.apk" />
           </div>
         )}
-        <StartGameButton onClick={startGame} isInstalled={isInstalled} />
+        <StartGameButton onClick={() => startGame(selectedMode, time)} isInstalled={isInstalled} />
       </>
     );
   };
@@ -157,10 +235,14 @@ export default function Home() {
       }
 
       lastHandledUrlRef.current = currentUrl;
+      // Mark that we're handling a shortcut so logging/behavior adjusts
+      handlingShortcutRef.current = true;
       // Start immediately with explicit parameters to avoid async state race
       startGame(mappedMode, minutes);
       // Clean the URL so it doesn't retrigger on navigations
       window.history.replaceState({}, "", "/");
+      // Reset shortcut flag
+      handlingShortcutRef.current = false;
     };
 
     // Initial check on mount
