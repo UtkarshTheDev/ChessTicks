@@ -295,7 +295,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://vercel.app" />
 
         {/* Web App Manifest (with version for cache busting) */}
-        <link rel="manifest" href="/manifest.json?v=2025-09-10" />
+        <link rel="manifest" href="/manifest.json?v=2025-09-19-01" />
 
         {/* Favicon and Icons */}
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />

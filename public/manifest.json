@@ -2,7 +2,7 @@
   "name": "ChessTicks - Professional Chess Timer",
   "short_name": "ChessTicks",
   "description": "Professional chess timer with all 5 tournament modes: Sudden Death, Fischer Increment, Simple Delay, Bronstein Delay & Multi-Stage. Perfect for chess players and tournaments.",
-  "id": "/?app_id=chessticks",
+  "id": "/chessticks",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#121212",
@@ -44,7 +44,7 @@
       "name": "Start Blitz Game",
       "short_name": "Blitz",
       "description": "Start a 5-minute blitz chess game",
-      "url": "/?mode=blitz",
+      "url": "/launch/blitz",
       "icons": [
         {
           "src": "/icons/android-chrome-192x192.png",
@@ -56,7 +56,7 @@
       "name": "Start Rapid Game", 
       "short_name": "Rapid",
       "description": "Start a 15-minute rapid chess game",
-      "url": "/?mode=rapid",
+      "url": "/launch/rapid",
       "icons": [
         {
           "src": "/icons/android-chrome-192x192.png",
@@ -68,7 +68,7 @@
       "name": "Tournament Timer",
       "short_name": "Tournament",
       "description": "Start a tournament-style chess timer",
-      "url": "/?mode=tournament",
+      "url": "/launch/tournament",
       "icons": [
         {
           "src": "/icons/android-chrome-192x192.png",

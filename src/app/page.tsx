@@ -28,7 +28,8 @@ export default function Home() {
   const [selectedMode, setSelectedMode] = useState<TimerMode>("SUDDEN_DEATH");
   const [gameState, setGameState] = useState<GameState>("home");
   const { isInstalled } = useAppInstallState();
-  const handledShortcutRef = useRef(false);
+  // Track last handled URL to prevent duplicate handling within the same lifecycle
+  const lastHandledUrlRef = useRef<string | null>(null);
 
   // Setup timer using either provided args or current state
   const setTimer = (modeArg?: TimerMode, minutesArg?: number) => {
@@ -118,39 +119,69 @@ export default function Home() {
 
   // Handle PWA app shortcuts (?mode=blitz|rapid|tournament)
   useEffect(() => {
-    if (handledShortcutRef.current) return;
     if (typeof window === "undefined") return;
-    const sp = new URLSearchParams(window.location.search);
-    const mode = sp.get("mode");
-    if (!mode) return;
 
-    handledShortcutRef.current = true;
+    const handleShortcutIfPresent = () => {
+      const currentUrl = window.location.href;
+      if (lastHandledUrlRef.current === currentUrl) return; // already handled this URL
+      const sp = new URLSearchParams(window.location.search);
+      let mode: string | null = sp.get("mode");
+      // Also support /launch/<mode> path launched from manifest
+      if (!mode) {
+        const path = window.location.pathname;
+        const launchPrefix = "/launch/";
+        if (path.startsWith(launchPrefix)) {
+          mode = path.slice(launchPrefix.length);
+        }
+      }
+      if (!mode) return;
 
-    // Map incoming shortcut to internal TimerMode and default duration
-    let mappedMode: TimerMode = "SUDDEN_DEATH";
-    let minutes = 15;
-    switch (mode.toLowerCase()) {
-      case "blitz":
-        mappedMode = "SUDDEN_DEATH";
-        minutes = 5; // 5+0 Blitz by default
-        break;
-      case "rapid":
-        mappedMode = "SUDDEN_DEATH";
-        minutes = 15; // 15+0 Rapid by default
-        break;
-      case "tournament":
-        mappedMode = "MULTI_STAGE";
-        minutes = 90; // Trigger classical multi-stage config
-        break;
-      default:
-        // Unknown value, ignore
-        return;
-    }
+      // Map incoming shortcut to internal TimerMode and default duration
+      let mappedMode: TimerMode = "SUDDEN_DEATH";
+      let minutes = 15;
+      switch (mode.toLowerCase()) {
+        case "blitz":
+          mappedMode = "SUDDEN_DEATH";
+          minutes = 5; // 5+0 Blitz by default
+          break;
+        case "rapid":
+          mappedMode = "SUDDEN_DEATH";
+          minutes = 15; // 15+0 Rapid by default
+          break;
+        case "tournament":
+          mappedMode = "MULTI_STAGE";
+          minutes = 90; // Trigger classical multi-stage config
+          break;
+        default:
+          return;
+      }
 
-    // Start immediately with explicit parameters to avoid async state race
-    startGame(mappedMode, minutes);
-    // Clean the URL so it doesn't retrigger on navigations
-    window.history.replaceState({}, "", "/");
+      lastHandledUrlRef.current = currentUrl;
+      // Start immediately with explicit parameters to avoid async state race
+      startGame(mappedMode, minutes);
+      // Clean the URL so it doesn't retrigger on navigations
+      window.history.replaceState({}, "", "/");
+    };
+
+    // Initial check on mount
+    handleShortcutIfPresent();
+
+    // Listen for cases where the OS brings the existing PWA window to foreground
+    const onFocus = () => handleShortcutIfPresent();
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") handleShortcutIfPresent();
+    };
+    const onPopState = () => handleShortcutIfPresent();
+
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("popstate", onPopState);
+
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("popstate", onPopState);
+    };
   }, []);
 
   return (
